@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-18T03:14:42Z",
+  "title": "Design System: Skills",
+  "extensions": {
+    "platform": {
+      "framework": "SwiftUI",
+      "surface": "macOS 15+",
+      "previewNote": "This sidecar records native source views and states without fabricating a cross-platform preview."
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Inspector section labels using the native SwiftUI headline style."
+      },
+      "body-medium": {
+        "displayName": "Medium Body",
+        "purpose": "Primary text in compact skill rows."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Row metadata, help text, counts, and timestamps."
+      },
+      "monospaced-callout": {
+        "displayName": "Monospaced Callout",
+        "purpose": "Selectable final CLI output inside the installation detail disclosure."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "native-control-motion",
+        "value": "system",
+        "purpose": "Selection, progress, disclosure, dialog, and content behavior use SwiftUI defaults and inherit platform accessibility behavior, including Reduce Motion."
+      }
+    ],
+    "stateVocabulary": [
+      {
+        "name": "selected",
+        "appearance": "Top navigation uses accent icon and text on a native quaternary rounded surface.",
+        "appliesTo": ["top navigation item"]
+      },
+      {
+        "name": "busy",
+        "appearance": "Mutation sheets show progress and mutating actions are disabled.",
+        "appliesTo": ["install", "link", "update", "update all", "remove"]
+      },
+      {
+        "name": "loading",
+        "appearance": "Centered ProgressView for the initial directory request and a compact progress row during pagination.",
+        "appliesTo": ["initial directory load", "directory pagination", "search"]
+      },
+      {
+        "name": "completed",
+        "appearance": "System green checkmark.circle.fill with localized mutation-completed text.",
+        "appliesTo": ["mutation progress sheet"]
+      },
+      {
+        "name": "needs-attention",
+        "appearance": "System orange exclamationmark.triangle.fill with localized mutation-failed text.",
+        "appliesTo": ["mutation progress sheet"]
+      },
+      {
+        "name": "destructive",
+        "appearance": "Native destructive button role with a trash symbol and localized Remove label.",
+        "appliesTo": ["remove action", "remove confirmation"]
+      },
+      {
+        "name": "disabled",
+        "appearance": "Native disabled control treatment.",
+        "appliesTo": ["install without selected agents", "mutating actions while busy"]
+      },
+      {
+        "name": "empty",
+        "appearance": "ContentUnavailableView with an SF Symbol and localized explanation.",
+        "appliesTo": ["empty directory", "empty search", "installed page"]
+      },
+      {
+        "name": "runtime-checking",
+        "appearance": "Large ProgressView replaces the manager.",
+        "appliesTo": ["application root"]
+      },
+      {
+        "name": "runtime-missing",
+        "appearance": "Focused ContentUnavailableView with retry and runtime installation links replaces the manager.",
+        "appliesTo": ["application root"]
+      },
+      {
+        "name": "log-collapsed",
+        "appearance": "Users can collapse the final CLI output DisclosureGroup.",
+        "appliesTo": ["mutation progress sheet"]
+      },
+      {
+        "name": "log-expanded",
+        "appearance": "Selectable monospaced CLI output opens by default and scrolls horizontally and vertically.",
+        "appliesTo": ["mutation progress sheet"]
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Flat Top Navigation",
+      "kind": "nav",
+      "refersTo": "top-navigation",
+      "description": "Three centered 68×48 point buttons sit in a flat full-width strip beneath the native titlebar. Each places a 21pt SF Symbol above a caption label. Only the selected item uses accent-colored content on a native quaternary rounded surface; the group has no enclosing capsule.",
+      "nativeView": "Content HStack of plain Buttons above a Divider",
+      "states": ["selected"]
+    },
+    {
+      "name": "Selectable Skill Row",
+      "kind": "custom",
+      "refersTo": "grouped-skill-row",
+      "description": "A native selectable inset List row keeps skill name and source to one truncated line, then reserves trailing width for count metadata. Virtualization prevents off-screen directory pages from loading eagerly.",
+      "nativeView": "Tagged row in selectable inset List",
+      "states": ["default", "selected", "loading"]
+    },
+    {
+      "name": "Persistent Skill Detail",
+      "kind": "custom",
+      "refersTo": "detail-panel",
+      "description": "The right HSplitView pane updates in place and scrolls as one page. Metadata uses 6pt row spacing; major sections use 16pt; the pane keeps 24pt horizontal and bottom padding with no top inset.",
+      "nativeView": "HSplitView detail pane with compact edge-aligned vertical ScrollView",
+      "states": ["empty", "selected", "busy"]
+    },
+    {
+      "name": "GitHub Repository Installer",
+      "kind": "input",
+      "refersTo": "repository-installer",
+      "description": "A Browse list control opens a compact native sheet with an owner/repository or github.com URL field, inline validation, shared agent and installation-method controls, and a standard Cancel / Install All Skills footer. Submission transitions directly to mutation progress.",
+      "nativeView": "List control Button and sheet with TextField, agent picker, segmented Picker, and footer actions",
+      "states": ["empty", "invalid", "ready", "busy"]
+    },
+    {
+      "name": "Installed Skill Linker",
+      "kind": "input",
+      "description": "A compact native sheet supports both single-skill and batch linking. Single mode summarizes current links; batch mode adds a searchable two-column installed-skill selector filtering by name or recorded repository, with Select Visible scoped to the filtered results. Both use the shared searchable two-column agent picker with empty local selections, preserve existing agents, group execution by recorded source, and transition directly to mutation progress.",
+      "nativeView": "Management-row or detail Button and sheet with skill grid, agent picker, and footer actions",
+      "states": ["empty", "ready", "busy", "source unavailable"]
+    },
+    {
+      "name": "Agent Target Picker",
+      "kind": "input",
+      "refersTo": "agent-picker",
+      "description": "Inline filter and adaptive grid of checkbox toggles; the persistent Browse detail gives it a bounded 300pt scrolling region while fixed-width sheets use their available height. A 24pt checkbox is vertically centered beside the two-line agent name and secondary caption-sized global skill directory, with Select Visible and Clear actions.",
+      "nativeView": "TextField and vertically flexible LazyVGrid of full-row Toggle controls using AgentCheckboxToggleStyle",
+      "states": ["filtered", "selected", "cleared"]
+    },
+    {
+      "name": "Installation Method Picker",
+      "kind": "input",
+      "description": "Native segmented control for Symlink and Copy with contextual caption help.",
+      "nativeView": "Picker with segmented style",
+      "states": ["symlink", "copy"]
+    },
+    {
+      "name": "Prominent Mutation Action",
+      "kind": "button",
+      "refersTo": "prominent-action",
+      "description": "Native bordered-prominent Install or Update action; Install fills the persistent detail width at large control size.",
+      "nativeView": "Button",
+      "states": ["enabled", "disabled", "busy"]
+    },
+    {
+      "name": "Confirmation and Summary Feedback",
+      "kind": "custom",
+      "description": "Native confirmation dialogs protect Install, Update All, and Remove; concise localized alerts summarize search and list failures.",
+      "nativeView": "confirmationDialog and alert",
+      "states": ["confirming", "cancelled", "failure summary"]
+    },
+    {
+      "name": "Skill Mutation Progress Sheet",
+      "kind": "custom",
+      "refersTo": "mutation-progress",
+      "description": "Non-dismissible modal progress for installation, linking, update, and removal while the CLI runs, with the exact copyable shell command in a horizontally scrolling monospaced line, followed by action-specific completion status and expanded selectable plain-text CLI output with ANSI terminal formatting removed.",
+      "nativeView": "sheet with ProgressView, horizontal ScrollView, and DisclosureGroup",
+      "states": ["busy", "completed", "needs-attention", "log-collapsed", "log-expanded"]
+    },
+    {
+      "name": "Runtime Repair State",
+      "kind": "custom",
+      "description": "Application-root checking and missing-runtime states that replace the manager until bunx or npx is usable.",
+      "nativeView": "ProgressView or ContentUnavailableView",
+      "states": ["runtime-checking", "runtime-missing", "available"]
+    }
+  ],
+  "narrative": {
+    "northStar": "Native Skills Preferences",
+    "overview": "Skills follows the focused structure of a polished macOS preferences window: the native titlebar stays visually quiet, a flat icon navigation strip sits directly beneath it, and the selected destination appears below. Browse and Installed pair a virtualized skill list with persistent detail while Settings retains a centered grouped form.\n\nThe interface defers visual styling to SwiftUI and AppKit conventions so it remains familiar across appearance, accent, accessibility, and language settings.",
+    "keyCharacteristics": [
+      "Flat icon navigation below the native window titlebar",
+      "Lazy skill lists beside persistent detail panels",
+      "System typography, materials, controls, and SF Symbols",
+      "Focused mutation and linking sheets",
+      "Complete English and Simplified Chinese presentation"
+    ],
+    "rules": [
+      {
+        "name": "The Semantic State Rule",
+        "body": "Green means completed, orange means needs attention, and the destructive role is reserved for removal; never use these roles as decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dynamic Palette Rule",
+        "body": "Do not replace system roles with fixed light-mode or dark-mode color values.",
+        "section": "colors"
+      },
+      {
+        "name": "The Named Style Rule",
+        "body": "Use SwiftUI text styles instead of hard-coded point sizes so hierarchy follows macOS accessibility settings.",
+        "section": "typography"
+      },
+      {
+        "name": "The Persistent Detail Rule",
+        "body": "Browse and Installed keep the selected skill and its controls visible side by side; selecting another row updates the right column in place.",
+        "section": "layout"
+      },
+      {
+        "name": "The Native Layering Rule",
+        "body": "Use the platform's container hierarchy before adding a custom background, border, blur, or shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use native SwiftUI controls, text styles, focus, keyboard behavior, VoiceOver semantics, and Reduce Motion behavior as the baseline.",
+      "Do keep skill selection and its controls visible together in the list and detail columns.",
+      "Do pair every semantic state color with an SF Symbol and localized text.",
+      "Do preserve technical identifiers, source URLs, paths, and raw output as selectable text where implemented.",
+      "Do keep diagnostics available but collapsed until requested."
+    ],
+    "donts": [
+      "Don't add custom cards, decorative glass, gradients, fixed palette values, or ornamental shadows.",
+      "Don't turn the interface into a terminal transcript or lead with stdout and stderr.",
+      "Don't use success, attention, or destructive colors without their native icon, label, or control role.",
+      "Don't add custom animation timing where native selection, progress, disclosure, dialog, and content behavior already responds to accessibility settings.",
+      "Don't translate native controls into cross-platform approximations or fixed visual recipes."
+    ]
+  }
+}
