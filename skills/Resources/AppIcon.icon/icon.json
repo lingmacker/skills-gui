@@ -1,0 +1,40 @@
+{
+  "fill": {
+    "automatic-gradient": "extended-srgb:0.15686,0.16471,0.18824,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "image-name": "02 Active Module.svg",
+          "name": "Active Module"
+        }
+      ],
+      "shadow": {
+        "kind": "layer-color",
+        "opacity": 0.32
+      },
+      "specular": true,
+      "translucency": {
+        "enabled": true,
+        "value": 0.05
+      }
+    },
+    {
+      "layers": [
+        {
+          "image-name": "01 Module Tray.svg",
+          "name": "Module Tray"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.2
+      },
+      "specular": true
+    }
+  ],
+  "supported-platforms": {
+    "squares": ["macOS"]
+  }
+}
