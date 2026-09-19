@@ -11,7 +11,7 @@
 ## 功能
 
 - 浏览官方 skills.sh 目录，支持渐进加载和搜索。
-- 将单个 skill 或 GitHub 仓库中的全部 skills 安装到明确选定的 agents。
+- 将单个 skill 或 GitHub 仓库中明确勾选的多个 skills 安装到指定 agents。
 - 支持符号链接和复制两种安装方式。
 - 查看全局已安装 skills；更新单个或全部 skills；删除 skills；为已安装 skill 链接更多 agents。
 - 选择兼容的 `bunx` 或 `npx` runtime，并选择要执行的 `skills` CLI 版本。

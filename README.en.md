@@ -11,7 +11,7 @@ Native macOS manager for globally installed agent skills. Skills keeps the offic
 ## Features
 
 - Browse the official skills.sh directory with incremental loading and search.
-- Install one skill or every skill in a GitHub repository for explicitly selected agents.
+- Install one skill or explicitly selected skills from a GitHub repository for chosen agents.
 - Choose symlink or copy installation.
 - Inspect globally installed skills, update one or all skills, remove skills, and link an installed skill to more agents.
 - Select a compatible `bunx` or `npx` runtime and choose the `skills` package version to invoke.

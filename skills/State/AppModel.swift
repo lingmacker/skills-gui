@@ -224,23 +224,41 @@ final class AppModel {
     }
   }
 
-  func installRepository(source: String) async {
+  func loadRepositorySkills(source: String) async -> [String]? {
+    let source = source.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard Self.isValidGitHubRepositorySource(source) else {
+      presentError("error.repository_source_invalid")
+      return nil
+    }
+    guard let runtime else { return nil }
+
+    do {
+      return try await client.repositorySkills(
+        runtime: runtime, package: cliPackage, source: source)
+    } catch {
+      presentError("error.repository_load_failed", details: error.localizedDescription)
+      return nil
+    }
+  }
+
+  func installRepository(source: String, skillNames: [String]) async {
     let source = source.trimmingCharacters(in: .whitespacesAndNewlines)
     guard Self.isValidGitHubRepositorySource(source) else {
       presentError("error.repository_source_invalid")
       return
     }
-    guard let runtime, !selectedAgents.isEmpty else { return }
+    guard let runtime, !skillNames.isEmpty, !selectedAgents.isEmpty else { return }
     let package = cliPackage
-
+    let skillNames = skillNames.sorted()
     let agents = selectedAgents.sorted()
     let copy = copyInstallation
-    let arguments = SkillsClient.repositoryAddArguments(source: source, agents: agents, copy: copy)
+    let arguments = SkillsClient.repositoryAddArguments(
+      source: source, skillNames: skillNames, agents: agents, copy: copy)
     await performInstall(
       action: .installRepository,
       displayName: source,
       command: runtime.commandDescription(for: arguments, package: package),
-      preferredInstalledNames: [],
+      preferredInstalledNames: Set(skillNames),
       failureKey: "error.install_failed",
       skippedKey: "error.install_skipped"
     ) {
@@ -248,6 +266,7 @@ final class AppModel {
         runtime: runtime,
         package: package,
         source: source,
+        skillNames: skillNames,
         agents: agents,
         copy: copy
       )

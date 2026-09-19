@@ -92,6 +92,35 @@ final class SkillsTests: XCTestCase {
         "--json",
       ])
   }
+  func testRepositoryInstallUsesOnlySelectedSkills() {
+    XCTAssertEqual(
+      SkillsClient.repositoryAddArguments(
+        source: "owner/repo",
+        skillNames: ["alpha", "beta"],
+        agents: ["codex"],
+        copy: false
+      ),
+      [
+        "add", "owner/repo", "-g", "-s", "alpha", "-s", "beta", "-a", "codex", "universal",
+        "-y", "--json",
+      ])
+  }
+
+  func testRepositorySkillListParserIgnoresDescriptionsAndGroups() {
+    let output = """
+      ◇  Available Skills
+      Plugin Group
+      │    alpha
+      │
+      │      Alpha description
+      │    beta
+      │
+      │      Beta description
+      └  Use --skill <name> to install specific skills
+      """
+
+    XCTAssertEqual(SkillsClient.decodeRepositorySkillNames(from: output), ["alpha", "beta"])
+  }
 
   func testDirectoryPageBuildsStableIdentifierWithoutSearchID() throws {
     let data = Data(

@@ -144,10 +144,10 @@ There is no project-owned corner-radius scale. Grouped forms, buttons, search fi
 - **Actions:** Install and Update use bordered-prominent buttons. Installed skills with a recorded source also expose Link to Other Agents; Remove uses the native destructive role.
 
 ### GitHub Repository Installer
-- **Presentation:** A compact native sheet keeps the current Discover selection in place. The title and one-line scope statement lead directly into the required controls; Cancel and Install All Skills live in a standard footer.
+- **Presentation:** A compact native sheet keeps the current Discover selection in place. The first step collects the repository, target agents, and installation method; the second step lists discovered skills with every item selected by default.
 - **Source:** A rounded text field accepts `owner/repository` shorthand or a full `github.com` URL. Concise supporting text covers private-repository authentication; invalid non-empty input shows a semantic inline error.
-- **Scope:** Installation explicitly targets every skill discovered in the repository. Agent selection and Symlink/Copy reuse the same controls as directory installs.
-- **Action:** “Install All Skills” stays disabled until the source is valid and at least one agent is selected, then transitions the sheet directly to CLI progress without a redundant confirmation step.
+- **Scope:** A two-column native checkbox grid lets users clear unwanted skills, select all again, or cancel before mutation. Agent selection and Symlink/Copy reuse the same controls as directory installs.
+- **Action:** Review Skills stays disabled until the source is valid and at least one agent is selected. Install Selected Skills stays disabled when no skill is selected, then transitions directly to CLI progress.
 
 ### Installed Skill Linking
 - **Presentation:** Link to Other Agents opens a compact native sheet and preserves the selected installed skill behind it. Batch Link in the Installed management group opens the same sheet with an additional two-column skill selector.

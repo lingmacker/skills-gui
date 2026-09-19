@@ -234,6 +234,9 @@ struct RepositoryInstallView: View {
   @Environment(AppModel.self) private var model
   let onClose: () -> Void
   @State private var source = ""
+  @State private var repositorySkills: [String] = []
+  @State private var selectedSkillNames: Set<String> = []
+  @State private var isLoadingSkills = false
   @FocusState private var sourceFieldFocused: Bool
 
   var body: some View {
@@ -242,59 +245,115 @@ struct RepositoryInstallView: View {
     VStack(spacing: 0) {
       VStack(alignment: .leading, spacing: 20) {
         VStack(alignment: .leading, spacing: 5) {
-          Text("repository.title")
-            .font(.title2.weight(.semibold))
-          Text("repository.description")
-            .foregroundStyle(.secondary)
-        }
-
-        VStack(alignment: .leading, spacing: 7) {
-          Text("repository.source.label")
-            .font(.headline)
-          TextField("repository.source.placeholder", text: $source)
-            .textFieldStyle(.roundedBorder)
-            .focused($sourceFieldFocused)
-          Text("repository.source.help")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-          if !trimmedSource.isEmpty, !sourceIsValid {
-            Label("repository.source.invalid", systemImage: "exclamationmark.triangle.fill")
-              .font(.caption)
-              .foregroundStyle(.red)
-          }
-        }
-
-        VStack(alignment: .leading, spacing: 10) {
-          HStack {
-            Text("install.agents")
-              .font(.headline)
-            Spacer()
-            HStack(spacing: 4) {
-              Text("install.agents.selected")
-              Text(model.selectedAgents.count, format: .number)
-            }
-            .foregroundStyle(.secondary)
-          }
-          AgentPickerView(
-            selectedAgents: Binding(
-              get: { model.selectedAgents },
-              set: { model.setSelectedAgents($0) }
-            ),
-            minimumColumnWidth: 220
+          Text(
+            LocalizedStringKey(
+              repositorySkills.isEmpty ? "repository.title" : "repository.skills.title")
           )
+          .font(.title2.weight(.semibold))
+          Text(
+            LocalizedStringKey(
+              repositorySkills.isEmpty
+                ? "repository.description" : "repository.skills.description")
+          )
+          .foregroundStyle(.secondary)
         }
-        .frame(maxHeight: .infinity, alignment: .top)
 
-        VStack(alignment: .leading, spacing: 7) {
-          Picker("install.mode", selection: $model.copyInstallation) {
-            Text("install.mode.symlink").tag(false)
-            Text("install.mode.copy").tag(true)
+        if repositorySkills.isEmpty {
+          VStack(alignment: .leading, spacing: 7) {
+            Text("repository.source.label")
+              .font(.headline)
+            TextField("repository.source.placeholder", text: $source)
+              .textFieldStyle(.roundedBorder)
+              .focused($sourceFieldFocused)
+            Text("repository.source.help")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+            if !trimmedSource.isEmpty, !sourceIsValid {
+              Label("repository.source.invalid", systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.red)
+            }
           }
-          .pickerStyle(.segmented)
 
-          Text(model.copyInstallation ? "install.mode.copy.help" : "install.mode.symlink.help")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+          VStack(alignment: .leading, spacing: 10) {
+            HStack {
+              Text("install.agents")
+                .font(.headline)
+              Spacer()
+              HStack(spacing: 4) {
+                Text("install.agents.selected")
+                Text(model.selectedAgents.count, format: .number)
+              }
+              .foregroundStyle(.secondary)
+            }
+            AgentPickerView(
+              selectedAgents: Binding(
+                get: { model.selectedAgents },
+                set: { model.setSelectedAgents($0) }
+              ),
+              minimumColumnWidth: 220
+            )
+          }
+          .frame(maxHeight: .infinity, alignment: .top)
+
+          VStack(alignment: .leading, spacing: 7) {
+            Picker("install.mode", selection: $model.copyInstallation) {
+              Text("install.mode.symlink").tag(false)
+              Text("install.mode.copy").tag(true)
+            }
+            .pickerStyle(.segmented)
+
+            Text(model.copyInstallation ? "install.mode.copy.help" : "install.mode.symlink.help")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
+        } else {
+          VStack(alignment: .leading, spacing: 10) {
+            HStack {
+              Text("repository.skills.label")
+                .font(.headline)
+              Spacer()
+              HStack(spacing: 4) {
+                Text("install.agents.selected")
+                Text(selectedSkillNames.count, format: .number)
+              }
+              .foregroundStyle(.secondary)
+              Button("action.select_all") {
+                selectedSkillNames = Set(repositorySkills)
+              }
+              Button("action.clear") {
+                selectedSkillNames.removeAll()
+              }
+            }
+
+            ScrollView {
+              LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 220), alignment: .leading)],
+                alignment: .leading,
+                spacing: 8
+              ) {
+                ForEach(repositorySkills, id: \.self) { skillName in
+                  Toggle(
+                    skillName,
+                    isOn: Binding(
+                      get: { selectedSkillNames.contains(skillName) },
+                      set: { isSelected in
+                        if isSelected {
+                          selectedSkillNames.insert(skillName)
+                        } else {
+                          selectedSkillNames.remove(skillName)
+                        }
+                      }
+                    )
+                  )
+                  .toggleStyle(.checkbox)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                }
+              }
+              .padding(.vertical, 4)
+            }
+          }
+          .frame(maxHeight: .infinity, alignment: .top)
         }
       }
       .padding(24)
@@ -302,15 +361,44 @@ struct RepositoryInstallView: View {
       Divider()
 
       HStack {
+        if !repositorySkills.isEmpty {
+          Button("action.back") {
+            repositorySkills = []
+            selectedSkillNames = []
+          }
+        }
         Spacer()
         Button("action.cancel", role: .cancel, action: onClose)
           .keyboardShortcut(.cancelAction)
-        Button("repository.install.action") {
-          Task { await model.installRepository(source: trimmedSource) }
+        if repositorySkills.isEmpty {
+          Button {
+            loadSkills()
+          } label: {
+            if isLoadingSkills {
+              ProgressView()
+                .controlSize(.small)
+              Text("repository.skills.loading")
+            } else {
+              Text("repository.review.action")
+            }
+          }
+          .buttonStyle(.borderedProminent)
+          .keyboardShortcut(.defaultAction)
+          .disabled(
+            !sourceIsValid || model.selectedAgents.isEmpty || model.isBusy || isLoadingSkills)
+        } else {
+          Button("repository.install.action") {
+            Task {
+              await model.installRepository(
+                source: trimmedSource,
+                skillNames: repositorySkills.filter(selectedSkillNames.contains)
+              )
+            }
+          }
+          .buttonStyle(.borderedProminent)
+          .keyboardShortcut(.defaultAction)
+          .disabled(selectedSkillNames.isEmpty || model.isBusy)
         }
-        .buttonStyle(.borderedProminent)
-        .keyboardShortcut(.defaultAction)
-        .disabled(!sourceIsValid || model.selectedAgents.isEmpty || model.isBusy)
       }
       .padding(.horizontal, 24)
       .padding(.vertical, 16)
@@ -325,6 +413,16 @@ struct RepositoryInstallView: View {
 
   private var sourceIsValid: Bool {
     AppModel.isValidGitHubRepositorySource(trimmedSource)
+  }
+
+  private func loadSkills() {
+    isLoadingSkills = true
+    Task {
+      defer { isLoadingSkills = false }
+      guard let skills = await model.loadRepositorySkills(source: trimmedSource) else { return }
+      repositorySkills = skills
+      selectedSkillNames = Set(skills)
+    }
   }
 }
 

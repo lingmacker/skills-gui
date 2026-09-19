@@ -60,6 +60,28 @@ struct SkillsClient: Sendable {
 
     return try decoder.decode([InstalledSkill].self, from: data)
   }
+  func repositorySkills(runtime: PackageRuntime, package: String, source: String) async throws
+    -> [String]
+  {
+    let result = try await run(
+      runtime: runtime, package: package, arguments: ["add", source, "--list"])
+    guard result.status == 0 else { throw SkillsClientError.commandFailed(result) }
+    let skills = Self.decodeRepositorySkillNames(from: result.standardOutput)
+    guard !skills.isEmpty else { throw SkillsClientError.incompatibleOutput(result) }
+    return skills
+  }
+
+  static func decodeRepositorySkillNames(from output: String) -> [String] {
+    guard let marker = output.range(of: "Available Skills") else { return [] }
+    return output[marker.upperBound...]
+      .split(separator: "\n", omittingEmptySubsequences: false)
+      .prefix { !$0.contains("Use --skill") }
+      .compactMap { line in
+        guard line.hasPrefix("│    "), !line.hasPrefix("│      ") else { return nil }
+        let name = line.dropFirst(5).trimmingCharacters(in: .whitespaces)
+        return name.isEmpty ? nil : name
+      }
+  }
 
   func add(
     runtime: PackageRuntime,
@@ -79,13 +101,15 @@ struct SkillsClient: Sendable {
     runtime: PackageRuntime,
     package: String,
     source: String,
+    skillNames: [String],
     agents: [String],
     copy: Bool
   ) async throws -> (outcomes: [AddOutcome], result: CommandResult) {
     try await add(
       runtime: runtime,
       package: package,
-      arguments: Self.repositoryAddArguments(source: source, agents: agents, copy: copy)
+      arguments: Self.repositoryAddArguments(
+        source: source, skillNames: skillNames, agents: agents, copy: copy)
     )
   }
 
@@ -93,8 +117,10 @@ struct SkillsClient: Sendable {
     addArguments(source: skill.source, skills: [skill.installName], agents: agents, copy: copy)
   }
 
-  static func repositoryAddArguments(source: String, agents: [String], copy: Bool) -> [String] {
-    addArguments(source: source, skills: ["*"], agents: agents, copy: copy)
+  static func repositoryAddArguments(
+    source: String, skillNames: [String], agents: [String], copy: Bool
+  ) -> [String] {
+    addArguments(source: source, skills: skillNames, agents: agents, copy: copy)
   }
 
   static func linkArguments(source: String, skillNames: [String], agents: [String]) -> [String] {
