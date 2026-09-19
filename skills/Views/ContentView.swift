@@ -149,7 +149,13 @@ private struct ManagerView: View {
     ) {
       Button("action.ok") { model.dismissError() }
     } message: {
-      Text(LocalizedStringKey(model.errorKey ?? ""))
+      VStack {
+        Text(LocalizedStringKey(model.errorKey ?? ""))
+        if let details = model.errorDetails {
+          Text(details)
+            .textSelection(.enabled)
+        }
+      }
     }
     .sheet(isPresented: presentsSheet) {
       if showsRepositoryInstaller {

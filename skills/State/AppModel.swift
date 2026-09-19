@@ -25,12 +25,14 @@ final class AppModel {
   var mutationProgress: SkillMutationProgress?
   var activeOperation: String?
   var errorKey: String?
+  var errorDetails: String?
 
   private let client = SkillsClient()
   private let defaults = UserDefaults.standard
   private var directoryPage = 0
   private var hasMoreDirectorySkills = true
   private var searchResultCache: [String: [SearchSkill]] = [:]
+  private var installedLoadError: Error?
 
   init() {
     let remembered = defaults.stringArray(forKey: "selectedAgents") ?? []
@@ -80,15 +82,27 @@ final class AppModel {
     let found = await Task.detached(priority: .userInitiated) { RuntimeLocator.available() }.value
     availableRuntimes = found
     guard
-      let selected =
+      let preferred =
         found.first(where: { $0.displayName == defaults.string(forKey: "runtimePreference") })
         ?? found.first
     else {
       runtimeState = .missing
       return
     }
-    runtimeState = .available(selected)
-    await reloadInstalled()
+
+    let candidates = [preferred] + found.filter { $0 != preferred }
+    var loadedInstalledSkills = false
+    for candidate in candidates {
+      runtimeState = .available(candidate)
+      if await reloadInstalled(reportFailure: false) {
+        defaults.set(candidate.displayName, forKey: "runtimePreference")
+        loadedInstalledSkills = true
+        break
+      }
+    }
+    if !loadedInstalledSkills {
+      presentError("error.list_failed", details: installedLoadError?.localizedDescription)
+    }
     if directorySkills.isEmpty {
       await loadMoreDiscovery()
     }
@@ -98,6 +112,7 @@ final class AppModel {
     guard availableRuntimes.contains(runtime) else { return }
     defaults.set(runtime.displayName, forKey: "runtimePreference")
     runtimeState = .available(runtime)
+    Task { await reloadInstalled() }
   }
 
   func search() async {
@@ -168,6 +183,7 @@ final class AppModel {
     guard let runtime else { return false }
     do {
       let response = try await client.list(runtime: runtime, package: cliPackage)
+      installedLoadError = nil
       installedSkills = response.skills.sorted {
         $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
       }
@@ -176,7 +192,10 @@ final class AppModel {
       }
       return true
     } catch {
-      if reportFailure { presentError("error.list_failed") }
+      installedLoadError = error
+      if reportFailure {
+        presentError("error.list_failed", details: error.localizedDescription)
+      }
       return false
     }
   }
@@ -499,9 +518,11 @@ final class AppModel {
 
   func dismissError() {
     errorKey = nil
+    errorDetails = nil
   }
 
-  private func presentError(_ key: String) {
+  private func presentError(_ key: String, details: String? = nil) {
+    errorDetails = details
     errorKey = key
   }
 }

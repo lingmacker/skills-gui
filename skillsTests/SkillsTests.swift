@@ -103,4 +103,18 @@ final class SkillsTests: XCTestCase {
     XCTAssertTrue(page.hasMore)
     XCTAssertEqual(page.page, 1)
   }
+
+  func testInstalledListParserIgnoresRuntimeNoise() throws {
+    let output = """
+      Resolving dependencies
+      [{"name":"my-skill","path":"/tmp/my-skill","scope":"global","agents":["Codex"]}]
+      Saved lockfile
+      """
+
+    let skills = try SkillsClient.decodeInstalledSkills(from: output)
+
+    XCTAssertEqual(skills.map(\.name), ["my-skill"])
+    XCTAssertEqual(skills.first?.agents, ["Codex"])
+  }
+
 }

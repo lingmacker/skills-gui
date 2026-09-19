@@ -76,7 +76,7 @@ A maintainer can also run the workflow manually and provide the release tag.
 
 ## Security and scope
 
-Skills only manages global skills. It performs mutations by invoking the selected `skills` CLI package; the CLI and resulting filesystem state are authoritative. Installation targets are explicit, and the last target selection is remembered locally.
+Skills only manages global skills. The selected `skills` CLI handles both installed-list discovery and all mutations, preserving its authoritative source, scope, and agent-association data. Installation targets are explicit, and the last target selection is remembered locally.
 
 ## License
 

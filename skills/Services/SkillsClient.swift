@@ -32,12 +32,33 @@ struct SkillsClient: Sendable {
       runtime: runtime, package: package, arguments: ["list", "-g", "--json"])
     guard result.status == 0 else { throw SkillsClientError.commandFailed(result) }
     do {
-      let skills = try JSONDecoder().decode(
-        [InstalledSkill].self, from: Data(result.standardOutput.utf8))
-      return (skills, result)
+      return (try Self.decodeInstalledSkills(from: result.standardOutput), result)
     } catch {
       throw SkillsClientError.incompatibleOutput(result)
     }
+  }
+
+  static func decodeInstalledSkills(from output: String) throws -> [InstalledSkill] {
+    let decoder = JSONDecoder()
+    let data = Data(output.utf8)
+    if let skills = try? decoder.decode([InstalledSkill].self, from: data) {
+      return skills
+    }
+
+    var searchStart = output.startIndex
+    while let start = output[searchStart...].firstIndex(of: "["),
+      let end = output.lastIndex(of: "]"),
+      start <= end
+    {
+      if let skills = try? decoder.decode(
+        [InstalledSkill].self, from: Data(output[start...end].utf8))
+      {
+        return skills
+      }
+      searchStart = output.index(after: start)
+    }
+
+    return try decoder.decode([InstalledSkill].self, from: data)
   }
 
   func add(
@@ -182,16 +203,17 @@ struct SkillsClient: Sendable {
         try? stderr.close()
       }
 
+      var environment = ProcessInfo.processInfo.environment
+      let path = RuntimeLocator.augmentedPath(environment: environment)
+      environment["PATH"] = path
+      environment["HOME"] = fileManager.homeDirectoryForCurrentUser.path
+
       let process = Process()
       process.executableURL = runtime.executableURL
       process.arguments = runtime.arguments(for: arguments, package: package)
       process.currentDirectoryURL = fileManager.homeDirectoryForCurrentUser
       process.standardOutput = stdout
       process.standardError = stderr
-
-      var environment = ProcessInfo.processInfo.environment
-      environment["PATH"] = RuntimeLocator.augmentedPath()
-      environment["HOME"] = fileManager.homeDirectoryForCurrentUser.path
       process.environment = environment
 
       do {
@@ -233,8 +255,8 @@ enum SkillsClientError: LocalizedError {
       "Could not launch \(runtime): \(error.localizedDescription)"
     case .commandFailed(let result):
       result.log.isEmpty ? "The skills command failed with status \(result.status)." : result.log
-    case .incompatibleOutput:
-      "The latest skills CLI returned an unsupported response."
+    case .incompatibleOutput(let result):
+      result.log.isEmpty ? "The skills CLI returned an unsupported response." : result.log
     }
   }
 
