@@ -46,7 +46,7 @@ struct DiscoveryListView: View {
       Divider()
 
       List(selection: $model.selectedSearchID) {
-        Section("discover.start.title") {
+        Section {
           if model.visibleSkills.isEmpty {
             Group {
               if model.isSearching || model.isInitialDirectoryLoad {
@@ -110,6 +110,20 @@ struct DiscoveryListView: View {
               }
               .accessibilityLabel(Text("discover.loading"))
             }
+          }
+        } header: {
+          HStack {
+            Text("discover.start.title")
+            Spacer()
+            Button {
+              Task { await model.refreshDiscovery() }
+            } label: {
+              Image(systemName: "arrow.clockwise")
+            }
+            .buttonStyle(.borderless)
+            .help("discover.refresh")
+            .accessibilityLabel("discover.refresh")
+            .disabled(model.isSearching || model.isLoadingMoreSkills)
           }
         }
       }
@@ -179,7 +193,7 @@ struct InstalledListView: View {
 
       List(selection: $model.selectedInstalledID) {
 
-        Section("installed.skills") {
+        Section {
           if model.installedSkills.isEmpty {
             ContentUnavailableView(
               "installed.empty",
@@ -211,8 +225,6 @@ struct InstalledListView: View {
                 HStack(spacing: 0) {
                   Text(skill.agents.count, format: .number)
                     .monospacedDigit()
-                  Text(" ")
-                    .accessibilityHidden(true)
                   Text("installed.agents.suffix")
                 }
                 .font(.caption)
@@ -221,6 +233,18 @@ struct InstalledListView: View {
               .contentShape(Rectangle())
               .tag(skill.id)
             }
+          }
+        } header: {
+          HStack {
+            Text("installed.skills")
+            Spacer()
+            HStack(spacing: 0) {
+              Text(model.installedSkills.count, format: .number)
+                .monospacedDigit()
+              Text("installed.count.suffix")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
           }
         }
       }

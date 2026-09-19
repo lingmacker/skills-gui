@@ -13,6 +13,7 @@
 "discover.search.prompt" = "搜索 skills";
 "discover.searching" = "正在搜索…";
 "discover.loading" = "正在载入 skills…";
+"discover.refresh" = "刷新 skills";
 "discover.start.title" = "浏览 Skills";
 "discover.start.description" = "默认展示 skills.sh 目录；输入至少两个字符可搜索。";
 "discover.controls" = "发现";
@@ -39,9 +40,10 @@
 "error.repository_load_failed" = "无法载入仓库中的 skills。";
 "installed.empty" = "没有全局 Skills";
 "installed.empty.description" = "发现一个 skill，并将它安装到一个或多个 agent。";
-"installed.agents.suffix" = "个 agents";
+"installed.agents.suffix" = " 个 agents";
 "installed.management" = "管理";
 "installed.skills" = "Skills";
+"installed.count.suffix" = " 已安装";
 "installed.update_all" = "全部更新";
 "installed.update_all.confirm" = "更新全部全局 skills？";
 "installed.update_all.message" = "skills CLI 会立即应用更新，没有只读检查。";

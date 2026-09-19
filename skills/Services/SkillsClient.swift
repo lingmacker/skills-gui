@@ -1,6 +1,12 @@
 import Foundation
 
 struct SkillsClient: Sendable {
+  private let baseEnvironment: [String: String]
+
+  init(environment: [String: String] = ProcessInfo.processInfo.environment) {
+    baseEnvironment = environment
+  }
+
   func search(query: String) async throws -> [SearchSkill] {
     var components = URLComponents(string: "https://skills.sh/api/search")!
     components.queryItems = [
@@ -229,7 +235,7 @@ struct SkillsClient: Sendable {
         try? stderr.close()
       }
 
-      var environment = ProcessInfo.processInfo.environment
+      var environment = baseEnvironment
       let path = RuntimeLocator.augmentedPath(environment: environment)
       environment["PATH"] = path
       environment["HOME"] = fileManager.homeDirectoryForCurrentUser.path

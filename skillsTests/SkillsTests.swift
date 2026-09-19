@@ -28,6 +28,62 @@ final class SkillsTests: XCTestCase {
     XCTAssertTrue(RuntimeLocator.supportsNodeVersion("v22.20.0"))
     XCTAssertTrue(RuntimeLocator.supportsNodeVersion("v23.0.0"))
   }
+  func testShellSpecificStartupArguments() {
+    XCTAssertEqual(UserShellEnvironment.kind(for: "/bin/zsh"), .zsh)
+    XCTAssertEqual(UserShellEnvironment.kind(for: "/bin/bash"), .bash)
+    XCTAssertEqual(UserShellEnvironment.kind(for: "/opt/homebrew/bin/fish"), .fish)
+    XCTAssertEqual(UserShellEnvironment.kind(for: "/bin/tcsh"), .other)
+    XCTAssertEqual(
+      UserShellEnvironment.arguments(for: .zsh),
+      ["-l", "-i", "-c", "/usr/bin/env -0"])
+    XCTAssertEqual(
+      UserShellEnvironment.arguments(for: .other),
+      ["-c", "/usr/bin/env -0"])
+  }
+
+  func testShellEnvironmentLoadsOnceFromConfiguredShell() throws {
+    let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    let shell = root.appending(path: "fish")
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+    try makeExecutable(
+      at: shell,
+      contents:
+        "#!/bin/sh\nprintf 'startup output\\nPATH=/custom/bin\\0JAVA_HOME=/custom/java\\0VALUE=a=b\\0'\n"
+    )
+
+    let environment = UserShellEnvironment.load(
+      base: ["SHELL": shell.path, "BASE_VALUE": "preserved"],
+      homeDirectory: root,
+      timeout: 1
+    )
+
+    XCTAssertEqual(environment["PATH"], "/custom/bin")
+    XCTAssertEqual(environment["JAVA_HOME"], "/custom/java")
+    XCTAssertEqual(environment["VALUE"], "a=b")
+    XCTAssertEqual(environment["BASE_VALUE"], "preserved")
+  }
+
+  func testClientPassesCapturedEnvironmentDirectlyToRuntime() async throws {
+    let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    let bunx = root.appending(path: "bunx")
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: root) }
+    try makeExecutable(
+      at: bunx,
+      contents:
+        "#!/bin/sh\nprintf '[{\"name\":\"%s\",\"path\":\"/tmp\",\"scope\":\"global\",\"agents\":[]}]' \"$CAPTURED_VALUE\"\n"
+    )
+
+    let client = SkillsClient(environment: [
+      "CAPTURED_VALUE": "from-shell",
+      "HOME": root.path,
+      "PATH": "/usr/bin",
+    ])
+    let response = try await client.list(runtime: .bunx(bunx), package: "skills@latest")
+
+    XCTAssertEqual(response.skills.map(\.name), ["from-shell"])
+  }
 
   func testRuntimeSkipsAnOlderNodeEarlierInPath() throws {
     let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)

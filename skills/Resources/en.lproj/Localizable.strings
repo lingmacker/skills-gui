@@ -13,6 +13,7 @@
 "discover.search.prompt" = "Search skills";
 "discover.searching" = "Searching…";
 "discover.loading" = "Loading skills…";
+"discover.refresh" = "Refresh skills";
 "discover.start.title" = "Browse Skills";
 "discover.start.description" = "Skills from skills.sh appear by default. Enter at least two characters to search.";
 "discover.controls" = "Discover";
@@ -39,9 +40,10 @@
 "error.repository_load_failed" = "The repository skills could not be loaded.";
 "installed.empty" = "No Global Skills";
 "installed.empty.description" = "Discover a skill and install it for one or more agents.";
-"installed.agents.suffix" = "agents";
+"installed.agents.suffix" = " agents";
 "installed.management" = "Management";
 "installed.skills" = "Skills";
+"installed.count.suffix" = " installed";
 "installed.update_all" = "Update All";
 "installed.update_all.confirm" = "Update all global skills?";
 "installed.update_all.message" = "The skills CLI applies updates immediately. There is no read-only check.";

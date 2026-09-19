@@ -27,12 +27,13 @@ final class AppModel {
   var errorKey: String?
   var errorDetails: String?
 
-  private let client = SkillsClient()
+  private var client = SkillsClient()
   private let defaults = UserDefaults.standard
   private var directoryPage = 0
   private var hasMoreDirectorySkills = true
   private var searchResultCache: [String: [SearchSkill]] = [:]
   private var installedLoadError: Error?
+  private var commandEnvironment: [String: String]?
 
   init() {
     let remembered = defaults.stringArray(forKey: "selectedAgents") ?? []
@@ -73,24 +74,42 @@ final class AppModel {
 
   func start() async {
     guard !isCheckingRuntime else { return }
+    let discoveryTask = Task {
+      if directorySkills.isEmpty {
+        await loadMoreDiscovery()
+      }
+    }
+
     if runtime == nil {
       runtimeState = .checking
     }
     isCheckingRuntime = true
     defer { isCheckingRuntime = false }
 
-    let found = await Task.detached(priority: .userInitiated) { RuntimeLocator.available() }.value
-    availableRuntimes = found
+    let cachedEnvironment = commandEnvironment
+    let setup = await Task.detached(priority: .userInitiated) {
+      let environment = cachedEnvironment ?? UserShellEnvironment.load()
+      return (
+        environment: environment,
+        runtimes: RuntimeLocator.available(environment: environment)
+      )
+    }.value
+    commandEnvironment = setup.environment
+    client = SkillsClient(environment: setup.environment)
+    availableRuntimes = setup.runtimes
     guard
       let preferred =
-        found.first(where: { $0.displayName == defaults.string(forKey: "runtimePreference") })
-        ?? found.first
+        setup.runtimes.first(where: {
+          $0.displayName == defaults.string(forKey: "runtimePreference")
+        })
+        ?? setup.runtimes.first
     else {
       runtimeState = .missing
+      await discoveryTask.value
       return
     }
 
-    let candidates = [preferred] + found.filter { $0 != preferred }
+    let candidates = [preferred] + setup.runtimes.filter { $0 != preferred }
     var loadedInstalledSkills = false
     for candidate in candidates {
       runtimeState = .available(candidate)
@@ -103,9 +122,7 @@ final class AppModel {
     if !loadedInstalledSkills {
       presentError("error.list_failed", details: installedLoadError?.localizedDescription)
     }
-    if directorySkills.isEmpty {
-      await loadMoreDiscovery()
-    }
+    await discoveryTask.value
   }
 
   func selectRuntime(_ runtime: PackageRuntime) {
@@ -175,6 +192,20 @@ final class AppModel {
       guard !Task.isCancelled, (error as? URLError)?.code != .cancelled else { return }
       guard isShowingDirectory else { return }
       presentError("error.search_failed")
+    }
+  }
+  func refreshDiscovery() async {
+    if isShowingDirectory {
+      guard !isLoadingMoreSkills else { return }
+      directoryPage = 0
+      hasMoreDirectorySkills = true
+      directorySkills = []
+      await loadMoreDiscovery()
+    } else {
+      guard !isSearching else { return }
+      let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+      searchResultCache[query] = nil
+      await search()
     }
   }
 
