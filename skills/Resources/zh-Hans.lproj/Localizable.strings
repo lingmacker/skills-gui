@@ -11,6 +11,7 @@
 "environment.install_bun" = "安装 Bun";
 "environment.install_node" = "安装 Node.js";
 "discover.search.prompt" = "搜索 skills";
+"installed.search.prompt" = "按 Skill 名称或仓库名搜索";
 "discover.searching" = "正在搜索…";
 "discover.loading" = "正在载入 skills…";
 "discover.refresh" = "刷新 skills";

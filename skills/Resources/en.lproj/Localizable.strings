@@ -11,6 +11,7 @@
 "environment.install_bun" = "Install Bun";
 "environment.install_node" = "Install Node.js";
 "discover.search.prompt" = "Search skills";
+"installed.search.prompt" = "Search by skill or repository";
 "discover.searching" = "Searching…";
 "discover.loading" = "Loading skills…";
 "discover.refresh" = "Refresh skills";

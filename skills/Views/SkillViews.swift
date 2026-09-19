@@ -137,13 +137,27 @@ struct InstalledListView: View {
   @Environment(AppModel.self) private var model
   let onUpdateAll: () -> Void
   let onBatchLink: () -> Void
+  @State private var searchQuery = ""
+
+  private var filteredSkills: [InstalledSkill] {
+    let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !query.isEmpty else { return model.installedSkills }
+    return model.installedSkills.filter { skill in
+      [skill.name, skill.source, skill.sourceUrl]
+        .compactMap { $0 }
+        .contains { $0.localizedCaseInsensitiveContains(query) }
+    }
+  }
 
   var body: some View {
     @Bindable var model = model
 
     VStack(spacing: 0) {
-      if !model.installedSkills.isEmpty {
-        VStack(spacing: 8) {
+      VStack(spacing: 8) {
+        TextField("installed.search.prompt", text: $searchQuery)
+          .textFieldStyle(.roundedBorder)
+
+        if !model.installedSkills.isEmpty {
           Button(action: onUpdateAll) {
             HStack(spacing: 10) {
               Image(systemName: "arrow.triangle.2.circlepath")
@@ -185,14 +199,13 @@ struct InstalledListView: View {
           .disabled(
             model.isBusy || !model.installedSkills.contains { $0.installSource != nil })
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-
-        Divider()
       }
+      .padding(.horizontal, 12)
+      .padding(.vertical, 10)
+
+      Divider()
 
       List(selection: $model.selectedInstalledID) {
-
         Section {
           if model.installedSkills.isEmpty {
             ContentUnavailableView(
@@ -201,8 +214,11 @@ struct InstalledListView: View {
               description: Text("installed.empty.description")
             )
             .frame(maxWidth: .infinity, minHeight: 220)
+          } else if filteredSkills.isEmpty {
+            ContentUnavailableView.search(text: searchQuery)
+              .frame(maxWidth: .infinity, minHeight: 180)
           } else {
-            ForEach(model.installedSkills) { skill in
+            ForEach(filteredSkills) { skill in
               HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 3) {
                   Text(skill.name)
