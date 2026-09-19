@@ -2,6 +2,10 @@
 
 [English](README.en.md)
 
+<p align="center">
+  <img src="icon.png" width="192" alt="Skills 应用图标">
+</p>
+
 原生 macOS 图形化工具，用于管理全局安装的 agent skills。Skills 保持官方 [`skills`](https://www.npmjs.com/package/skills) CLI 对文件系统变更的唯一权威，同时提供 SwiftUI 的发现与管理界面。
 
 ## 功能

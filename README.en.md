@@ -2,6 +2,10 @@
 
 [简体中文](README.md)
 
+<p align="center">
+  <img src="icon.png" width="192" alt="Skills app icon">
+</p>
+
 Native macOS manager for globally installed agent skills. Skills keeps the official [`skills`](https://www.npmjs.com/package/skills) CLI authoritative for filesystem changes and provides a SwiftUI interface for discovery and management.
 
 ## Features
