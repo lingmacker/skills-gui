@@ -32,33 +32,20 @@ private struct ManagerView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      HStack(spacing: 12) {
+      HStack(spacing: 4) {
+        Spacer(minLength: 0)
+
         ForEach(ManagerSection.allCases) { section in
-          let isSelected = model.selectedSection == section
-          Button {
+          ManagerNavigationButton(
+            section: section,
+            isSelected: model.selectedSection == section
+          ) {
             discoverySearchFocused = false
             model.selectedSection = section
-          } label: {
-            VStack(spacing: 3) {
-              Image(systemName: section.systemImage)
-                .font(.system(size: 21, weight: .regular))
-                .frame(height: 23)
-              Text(section.titleKey)
-                .font(.caption.weight(isSelected ? .semibold : .regular))
-            }
-            .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-            .frame(width: 68, height: 48)
-            .background {
-              if isSelected {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                  .fill(.quaternary)
-              }
-            }
-            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
           }
-          .buttonStyle(.plain)
-          .accessibilityValue(isSelected ? Text("navigation.selected") : Text(""))
         }
+
+        Spacer(minLength: 0)
       }
       .padding(.vertical, 8)
       .frame(maxWidth: .infinity)
@@ -184,5 +171,37 @@ private struct ManagerView: View {
         model.dismissMutationProgress()
       }
     )
+  }
+}
+
+private struct ManagerNavigationButton: View {
+  let section: ManagerSection
+  let isSelected: Bool
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 7) {
+        Image(systemName: section.systemImage)
+          .font(.system(size: 15, weight: .semibold))
+          .frame(width: 18)
+
+        Text(section.titleKey)
+          .font(.body.weight(isSelected ? .semibold : .regular))
+      }
+      .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+      .padding(.horizontal, 12)
+      .frame(minWidth: 108)
+      .frame(height: 34)
+      .background {
+        if isSelected {
+          RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .fill(.quaternary)
+        }
+      }
+      .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+    .buttonStyle(.plain)
+    .accessibilityValue(isSelected ? Text("navigation.selected") : Text(""))
   }
 }
