@@ -717,6 +717,7 @@ struct InstalledSkillDetailView: View {
           .multilineTextAlignment(.trailing)
       }
       LabeledContent("skill.source_type", value: skill.sourceType ?? "—")
+      LabeledContent("skill.source", value: skill.installSource ?? "—")
 
       VStack(alignment: .leading, spacing: 8) {
         Text("installed.available_to")
