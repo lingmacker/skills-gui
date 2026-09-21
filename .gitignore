@@ -21,4 +21,5 @@ xcuserdata/
 .build/
 .build-release/
 .swiftpm/
-
+buildServer.json
+-Xcc

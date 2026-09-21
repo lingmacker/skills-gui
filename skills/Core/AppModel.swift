@@ -3,7 +3,7 @@ import Observation
 
 @MainActor
 @Observable
-final class AppModel {
+public final class AppModel {
   var runtimeState: RuntimeState = .checking
   var availableRuntimes: [PackageRuntime] = []
   var isCheckingRuntime = false
@@ -35,7 +35,7 @@ final class AppModel {
   private var installedLoadError: Error?
   private var commandEnvironment: [String: String]?
 
-  init() {
+  public init() {
     let remembered = defaults.stringArray(forKey: "selectedAgents") ?? []
     selectedAgents = Set(remembered)
     cliVersion = defaults.string(forKey: "cliVersion") ?? "latest"

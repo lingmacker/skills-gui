@@ -156,11 +156,13 @@ struct SkillMutationProgressView: View {
   }
 }
 
-struct SettingsView: View {
+public struct SettingsView: View {
   @Environment(AppModel.self) private var model
   @AppStorage("languageOverride") private var languageOverride = "system"
 
-  var body: some View {
+  public init() {}
+
+  public var body: some View {
     @Bindable var model = model
 
     Form {

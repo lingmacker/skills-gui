@@ -1,9 +1,11 @@
 import SwiftUI
 
-struct ContentView: View {
+public struct ContentView: View {
   @Environment(AppModel.self) private var model
 
-  var body: some View {
+  public init() {}
+
+  public var body: some View {
     Group {
       switch model.runtimeState {
       case .checking:

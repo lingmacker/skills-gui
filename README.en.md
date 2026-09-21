@@ -43,16 +43,15 @@ Build output is `.build/Build/Products/Debug/Skills.app`.
 Run tests:
 
 ```sh
-xcodebuild -project skills.xcodeproj -scheme Skills \
-  -destination 'platform=macOS' -derivedDataPath .build test
+make test
 ```
 
 ## Install a release
 
-Release archives contain an ad-hoc signed, non-notarized `Skills.app`.
+Release disk images contain an ad-hoc signed, non-notarized `Skills.app`.
 
-1. Download and unzip `Skills-<version>-macos.zip` from [Releases](../../releases).
-2. Move `Skills.app` to `/Applications`.
+1. Download and open `Skills-<version>-macos.dmg` from [Releases](../../releases).
+2. Drag `Skills.app` to `/Applications`.
 3. Open it in Finder. If macOS blocks it, confirm the prompt or remove the quarantine attribute:
 
    ```sh
@@ -63,16 +62,15 @@ Ad-hoc signatures verify the archive's code structure but do not identify a deve
 
 ## Release automation
 
-Pushing a tag named `v*` runs [`.github/workflows/release.yml`](.github/workflows/release.yml). It tests the project, creates a universal Release (`arm64 + x86_64`) with Xcode's ad-hoc signature intact, verifies the signature, uploads a ZIP artifact, and creates a GitHub Release.
+Pushing a tag named `v*` runs [`.github/workflows/release.yml`](.github/workflows/release.yml). It tests the project, creates a universal Release (`arm64 + x86_64`) with Xcode's ad-hoc signature intact, verifies the signature, creates a DMG, and creates a GitHub Release.
 
 A maintainer can also run the workflow manually and provide the release tag.
 
 ## Project layout
 
-- `skills/` — SwiftUI application source and localized resources.
-- `skillsTests/` — unit tests.
-- `skills.xcodeproj/` — Xcode project.
-- `TITLEBAR_SEPARATOR_RESEARCH.md` — first-party AppKit research for the titlebar/content separator.
+- `skills/` — app entry point and source/resources organized under `Core/`, `Models/`, `Services/`, `Views/`, and `Resources/`.
+- `SkillsTests/` — Xcode unit-test target.
+- `skills.xcodeproj/` — Xcode project for the app and tests.
 
 ## Security and scope
 

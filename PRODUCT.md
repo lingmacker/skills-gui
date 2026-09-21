@@ -8,7 +8,7 @@ macOS 26+
 
 ## Stack
 
-Native SwiftUI application in an Xcode project. Source files are organized as Xcode groups under `skills/`; tests live in the sibling `skillsTests/` directory. The app is ad-hoc signed and not sandboxed.
+Native SwiftUI application managed directly by an Xcode project. The app entry point, categorized source, and resources live under `skills/`; tests live in the `SkillsTests/` target. The app is ad-hoc signed and not sandboxed.
 
 ## Users
 
