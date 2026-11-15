@@ -48,9 +48,9 @@ make test
 
 ## Install a release
 
-Release disk images contain an ad-hoc signed, non-notarized `Skills.app`.
+Release archives contain an ad-hoc signed, non-notarized `Skills.app`.
 
-1. Download and open `Skills-<version>-macos.dmg` from [Releases](../../releases).
+1. Download and unzip `Skills-<version>-macos.zip` from [Releases](../../releases).
 2. Drag `Skills.app` to `/Applications`.
 3. Open it in Finder. If macOS blocks it, confirm the prompt or remove the quarantine attribute:
 
@@ -62,7 +62,7 @@ Ad-hoc signatures verify the archive's code structure but do not identify a deve
 
 ## Release automation
 
-Pushing a tag named `v*` runs [`.github/workflows/release.yml`](.github/workflows/release.yml). It tests the project, creates a universal Release (`arm64 + x86_64`) with Xcode's ad-hoc signature intact, verifies the signature, creates a DMG, and creates a GitHub Release.
+Pushing a tag named `v*` runs [`.github/workflows/release.yml`](.github/workflows/release.yml). It tests the project, creates a universal Release (`arm64 + x86_64`) with Xcode's ad-hoc signature intact, verifies the signature, creates a ZIP archive, and creates a GitHub Release.
 
 A maintainer can also run the workflow manually and provide the release tag.
 

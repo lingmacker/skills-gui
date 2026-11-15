@@ -48,9 +48,9 @@ make test
 
 ## 安装 Release
 
-Release 磁盘映像中的 `Skills.app` 使用 ad-hoc 签名，未经过公证。
+Release 压缩包中的 `Skills.app` 使用 ad-hoc 签名，未经过公证。
 
-1. 从 [Releases](../../releases) 下载并打开 `Skills-<version>-macos.dmg`。
+1. 从 [Releases](../../releases) 下载 `Skills-<version>-macos.zip` 并解压。
 2. 将 `Skills.app` 拖到 `/Applications`。
 3. 在 Finder 中打开应用。若 macOS 阻止启动，请确认系统提示，或移除隔离属性：
 
@@ -62,7 +62,7 @@ ad-hoc 签名可验证归档的代码结构，但不会向 Gatekeeper 标识已�
 
 ## Release 自动化
 
-推送名为 `v*` 的 tag 会触发 [`.github/workflows/release.yml`](.github/workflows/release.yml)。该工作流会运行测试，构建并保留 Xcode 生成的 ad-hoc 签名 universal Release（`arm64 + x86_64`），验证签名，制作 DMG，上传产物并创建 GitHub Release。
+推送名为 `v*` 的 tag 会触发 [`.github/workflows/release.yml`](.github/workflows/release.yml)。该工作流会运行测试，构建并保留 Xcode 生成的 ad-hoc 签名 universal Release（`arm64 + x86_64`），验证签名，打包 ZIP，上传产物并创建 GitHub Release。
 
 维护者也可手动运行工作流，并提供 release tag。
 

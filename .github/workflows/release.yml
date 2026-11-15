@@ -52,23 +52,19 @@ jobs:
         shell: bash
         run: |
           APP="$DERIVED_DATA/Build/Products/Release/Skills.app"
-          DMG="Skills-$VERSION-macos.dmg"
-          STAGING="$(mktemp -d)"
-          trap 'rm -rf "$STAGING"' EXIT
+          ZIP="Skills-$VERSION-macos.zip"
 
           test -d "$APP"
           codesign --verify --deep --strict --verbose=2 "$APP"
           lipo -archs "$APP/Contents/MacOS/Skills"
-          ditto "$APP" "$STAGING/Skills.app"
-          hdiutil create -volname "Skills $VERSION" -srcfolder "$STAGING" \
-            -ov -format UDZO "$DMG"
-          hdiutil imageinfo "$DMG" >/dev/null
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+          unzip -tq "$ZIP"
 
-      - name: Upload release disk image
+      - name: Upload release archive
         uses: actions/upload-artifact@v4
         with:
           name: Skills-${{ steps.version.outputs.version }}-macos
-          path: Skills-${{ steps.version.outputs.version }}-macos.dmg
+          path: Skills-${{ steps.version.outputs.version }}-macos.zip
           if-no-files-found: error
 
       - name: Create GitHub release
@@ -77,5 +73,5 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
           VERSION: ${{ steps.version.outputs.version }}
         run: >-
-          gh release create "$TAG" "Skills-$VERSION-macos.dmg"
+          gh release create "$TAG" "Skills-$VERSION-macos.zip"
           --title "Skills $VERSION" --generate-notes
