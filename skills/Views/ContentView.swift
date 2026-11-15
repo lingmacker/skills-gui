@@ -8,12 +8,9 @@ public struct ContentView: View {
   public var body: some View {
     Group {
       switch model.runtimeState {
-      case .checking:
-        ProgressView("environment.checking")
-          .controlSize(.large)
       case .missing:
         RuntimeGateView()
-      case .available:
+      case .checking, .available:
         ManagerView()
       }
     }

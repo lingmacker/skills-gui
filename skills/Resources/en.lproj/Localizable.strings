@@ -41,6 +41,8 @@
 "error.repository_load_failed" = "The repository skills could not be loaded.";
 "installed.empty" = "No Global Skills";
 "installed.empty.description" = "Discover a skill and install it for one or more agents.";
+"installed.loading" = "Loading installed skills…";
+"installed.refresh" = "Refresh installed skills";
 "installed.agents.suffix" = " agents";
 "installed.management" = "Management";
 "installed.skills" = "Skills";

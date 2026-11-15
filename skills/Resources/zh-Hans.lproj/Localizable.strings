@@ -41,6 +41,8 @@
 "error.repository_load_failed" = "无法载入仓库中的 skills。";
 "installed.empty" = "没有全局 Skills";
 "installed.empty.description" = "发现一个 skill，并将它安装到一个或多个 agent。";
+"installed.loading" = "正在载入已安装的 skills…";
+"installed.refresh" = "刷新已安装的 skills";
 "installed.agents.suffix" = " 个 agents";
 "installed.management" = "管理";
 "installed.skills" = "Skills";

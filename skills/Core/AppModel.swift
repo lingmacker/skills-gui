@@ -22,6 +22,7 @@ public final class AppModel {
   var agentFilter = ""
   var isSearching = false
   var isLoadingMoreSkills = false
+  var isLoadingInstalled = false
   var mutationProgress: SkillMutationProgress?
   var activeOperation: String?
   var errorKey: String?
@@ -70,7 +71,7 @@ public final class AppModel {
     installedSkills.first { $0.id == selectedInstalledID }
   }
 
-  var isBusy: Bool { activeOperation != nil }
+  var isBusy: Bool { activeOperation != nil || runtime == nil }
 
   func start() async {
     guard !isCheckingRuntime else { return }
@@ -84,7 +85,11 @@ public final class AppModel {
       runtimeState = .checking
     }
     isCheckingRuntime = true
-    defer { isCheckingRuntime = false }
+    isLoadingInstalled = true
+    defer {
+      isCheckingRuntime = false
+      isLoadingInstalled = false
+    }
 
     let cachedEnvironment = commandEnvironment
     let setup = await Task.detached(priority: .userInitiated) {
@@ -212,6 +217,8 @@ public final class AppModel {
   @discardableResult
   func reloadInstalled(reportFailure: Bool = true) async -> Bool {
     guard let runtime else { return false }
+    isLoadingInstalled = true
+    defer { isLoadingInstalled = isCheckingRuntime }
     do {
       let response = try await client.list(runtime: runtime, package: cliPackage)
       installedLoadError = nil
@@ -229,6 +236,11 @@ public final class AppModel {
       }
       return false
     }
+  }
+
+  func refreshInstalled() async {
+    guard !isLoadingInstalled else { return }
+    await reloadInstalled()
   }
 
   func installSelected() async {

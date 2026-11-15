@@ -207,7 +207,14 @@ struct InstalledListView: View {
 
       List(selection: $model.selectedInstalledID) {
         Section {
-          if model.installedSkills.isEmpty {
+          if model.installedSkills.isEmpty, model.isLoadingInstalled {
+            ProgressView(
+              model.runtime == nil
+                ? LocalizedStringKey("environment.checking")
+                : LocalizedStringKey("installed.loading")
+            )
+            .frame(maxWidth: .infinity, minHeight: 220)
+          } else if model.installedSkills.isEmpty {
             ContentUnavailableView(
               "installed.empty",
               systemImage: "square.stack.3d.up",
@@ -261,11 +268,20 @@ struct InstalledListView: View {
             }
             .font(.caption)
             .foregroundStyle(.secondary)
+            Button {
+              Task { await model.refreshInstalled() }
+            } label: {
+              Image(systemName: "arrow.clockwise")
+            }
+            .buttonStyle(.borderless)
+            .help("installed.refresh")
+            .accessibilityLabel("installed.refresh")
+            .disabled(model.isBusy || model.isLoadingInstalled)
           }
         }
       }
       .listStyle(.inset)
-      .refreshable { await model.reloadInstalled() }
+      .refreshable { await model.refreshInstalled() }
     }
   }
 }
