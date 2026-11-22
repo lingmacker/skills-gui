@@ -63,13 +63,13 @@
 "link.current_agents" = "当前已链接";
 "link.target_agents" = "新增链接";
 "link.open.help" = "将这个 skill 链接到其它 Agents";
-"link.source_unavailable" = "这个 skill 没有可用于重新链接的来源信息";
+"skill.progress.link.operations" = "链接操作";
 "link.batch.action" = "批量链接";
 "link.batch.title" = "批量链接到 Agents";
 "link.batch.description" = "选择多个 Skills，并将它们链接到相同的目标 Agents。";
 "link.batch.open.help" = "将多个已安装 Skills 链接到其它 Agents";
 "link.skills" = "目标 Skills";
-"link.skill.search" = "筛选 Skill 名称或仓库";
+"link.skill.search" = "按 Skill 名称、仓库或路径筛选";
 "link.skills.empty" = "没有匹配的 Skills";
 "install.agents" = "目标 Agents";
 "install.agents.selected" = "已选择";
@@ -103,7 +103,7 @@
 "skill.progress.update.succeeded" = "更新完成。";
 "skill.progress.update.failed" = "更新失败。";
 "skill.progress.link.title" = "正在链接 Skill";
-"skill.progress.link.running" = "正在通过 skills CLI 创建链接…";
+"skill.progress.link.running" = "正在创建 Agent 链接…";
 "skill.progress.link.succeeded" = "Agent 链接完成。";
 "skill.progress.link.failed" = "Agent 链接失败。";
 "skill.progress.remove.title" = "正在删除 Skill";
@@ -134,5 +134,5 @@
 "error.install_failed" = "该 skill 未能安装到所有已选 agent。请展开“详细信息”查看 CLI 输出。";
 "error.install_skipped" = "CLI 跳过了该 skill。请展开“详细信息”查看原因。";
 "error.update_failed" = "更新未能成功完成。请展开“详细信息”查看 CLI 输出。";
-"error.link_failed" = "未能将该 skill 链接到所有已选 Agent。请展开“详细信息”查看 CLI 输出。";
+"error.link_failed" = "未能将该 skill 链接到所有已选 Agent。请展开“详细信息”查看原因。";
 "error.remove_failed" = "未能完整删除该 skill。请展开“详细信息”查看 CLI 输出。";

@@ -75,6 +75,13 @@ struct InstalledSkill: Decodable, Identifiable, Hashable, Sendable {
   let sourceType: String?
 
   var installSource: String? { source ?? sourceUrl }
+
+  var linkRepository: String? {
+    guard sourceType != "local", let source = installSource, !source.isEmpty,
+      !source.hasPrefix("/"), !source.hasPrefix("file://")
+    else { return nil }
+    return source
+  }
 }
 
 struct AddOutcome: Decodable, Sendable {

@@ -189,6 +189,42 @@ final class SkillsTests: XCTestCase {
     XCTAssertEqual(page.page, 1)
   }
 
+  func testLocalLinkSharesInstalledDirectoryWithoutOverwritingConflicts() throws {
+    let files = FileManager.default
+    let root = files.temporaryDirectory.appending(path: UUID().uuidString)
+    let source = root.appending(path: "original/my skill")
+    let target = AgentDefinition(id: "test", skillDirectory: root.appending(path: "agent/skills").path)
+    try files.createDirectory(at: source, withIntermediateDirectories: true)
+    defer { try? files.removeItem(at: root) }
+    let skill = InstalledSkill(name: "Display Name", path: source.path, scope: "global",
+      agents: [], source: nil, sourceUrl: nil, sourceType: nil)
+    XCTAssertNil(skill.linkRepository)
+    XCTAssertThrowsError(try SkillsClient.linkLocal(skill, to: target)) // No SKILL.md yet.
+    let manifest = source.appending(path: "SKILL.md")
+    try Data().write(to: manifest)
+    let link = try SkillsClient.linkLocal(skill, to: target)
+    XCTAssertEqual(link.lastPathComponent, source.lastPathComponent)
+    XCTAssertEqual(try files.destinationOfSymbolicLink(atPath: link.path),
+      source.resolvingSymlinksInPath().path)
+    XCTAssertEqual(try SkillsClient.linkLocal(skill, to: target), link)
+    try Data("edited".utf8).write(to: manifest)
+    XCTAssertEqual(try Data(contentsOf: link.appending(path: "SKILL.md")), Data("edited".utf8))
+
+    try files.removeItem(at: link)
+    try files.createDirectory(at: link, withIntermediateDirectories: false)
+    XCTAssertThrowsError(try SkillsClient.linkLocal(skill, to: target))
+    XCTAssertTrue(try files.contentsOfDirectory(atPath: link.path).isEmpty)
+  }
+
+  func testLinkUsesInstalledPathForLocalSourceAndRepositoryForRemote() {
+    let local = InstalledSkill(name: "alpha", path: "/installed/alpha", scope: "global",
+      agents: [], source: "local", sourceUrl: nil, sourceType: "local")
+    let remote = InstalledSkill(name: "beta", path: "/installed/beta", scope: "global",
+      agents: [], source: nil, sourceUrl: "https://github.com/example/repo", sourceType: "github")
+    XCTAssertNil(local.linkRepository)
+    XCTAssertEqual(remote.linkRepository, remote.sourceUrl)
+  }
+
   func testInstalledListParserIgnoresRuntimeNoise() throws {
     let output = """
       Resolving dependencies

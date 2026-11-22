@@ -82,7 +82,7 @@ private struct ManagerView: View {
             InstalledListView(
               onUpdateAll: { confirmsUpdateAll = true },
               onBatchLink: {
-                linkTargetSkills = model.installedSkills.filter { $0.installSource != nil }
+                linkTargetSkills = model.installedSkills
               }
             )
             .frame(minWidth: 300, idealWidth: 360, maxWidth: 440)

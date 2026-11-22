@@ -20,7 +20,7 @@ Skills lets a developer discover, install, inspect, update, and remove globally 
 
 ## Positioning
 
-A native macOS manager that keeps the official `skills` CLI as the authority for every filesystem mutation while presenting discovery and management as direct, task-oriented controls rather than a terminal session.
+A native macOS manager that keeps the official `skills` CLI as the backend for installation, updates and removal while presenting discovery and management as direct, task-oriented controls rather than a terminal session.
 
 ## Operating Context
 
@@ -31,7 +31,7 @@ The app uses the official skills.sh directory and search services for discovery.
 - Global scope only; project-local skills are outside the first release.
 - Core management only: discover, add, list, update, and remove.
 - Target agents are explicitly selected for installation and the last selection is remembered.
-- Symlink installation is the default; copy installation is available.
+- Symlink installation is the default; copy installation is available. Local installed skills can be linked directly into the selected agent directories without reinstalling.
 - Updates are explicit mutating actions. The app does not claim a read-only update check or update-availability state because the CLI exposes neither safely.
 - Search queries necessarily reach the official skills.sh API.
 - Installation and removal show their current phase and final CLI output in a modal sheet; other failures use concise localized alerts.

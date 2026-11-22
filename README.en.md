@@ -6,7 +6,7 @@
   <img src="icon.png" width="192" alt="Skills app icon">
 </p>
 
-Native macOS manager for globally installed agent skills. Skills keeps the official [`skills`](https://www.npmjs.com/package/skills) CLI authoritative for filesystem changes and provides a SwiftUI interface for discovery and management.
+Native macOS manager for globally installed agent skills. Skills keeps the official [`skills`](https://www.npmjs.com/package/skills) CLI as its backend and provides a SwiftUI interface for discovery and management.
 
 ## Features
 
@@ -74,7 +74,7 @@ A maintainer can also run the workflow manually and provide the release tag.
 
 ## Security and scope
 
-Skills only manages global skills. The selected `skills` CLI handles both installed-list discovery and all mutations, preserving its authoritative source, scope, and agent-association data. Installation targets are explicit, and the last target selection is remembered locally.
+Skills only manages global skills. Linking a local skill, individually or in a batch, creates a symlink to its installed directory without copying or overwriting existing content. The selected `skills` CLI handles installed-list discovery and all other mutations. Installation targets are explicit, and the last target selection is remembered locally.
 
 ## License
 

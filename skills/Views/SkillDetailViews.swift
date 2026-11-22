@@ -121,10 +121,8 @@ struct InstalledSkillDetailView: View {
         Button(action: onLink) {
           Label("link.action", systemImage: "link.badge.plus")
         }
-        .disabled(model.isBusy || skill.installSource == nil)
-        .help(
-          LocalizedStringKey(
-            skill.installSource == nil ? "link.source_unavailable" : "link.open.help"))
+        .disabled(model.isBusy)
+        .help("link.open.help")
 
         Button(role: .destructive) {
           confirmsRemoval = true

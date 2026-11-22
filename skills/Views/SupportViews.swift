@@ -71,7 +71,7 @@ struct SkillMutationProgressView: View {
         }
 
         VStack(alignment: .leading, spacing: 6) {
-          Text("skill.progress.command")
+          Text(progress.action == .link ? "skill.progress.link.operations" : "skill.progress.command")
             .font(.caption)
             .foregroundStyle(.secondary)
           ScrollView(.horizontal) {

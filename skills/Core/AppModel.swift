@@ -406,13 +406,14 @@ public final class AppModel {
     guard let runtime, !skills.isEmpty, !selectedAgents.isEmpty else { return }
     let package = cliPackage
     let agents = selectedAgents.sorted()
-    let linkableSkills = skills.compactMap { skill -> (source: String, skill: InstalledSkill)? in
-      guard let source = skill.installSource else { return nil }
+    let localSkills = skills.filter { $0.linkRepository == nil }
+    let targets = AgentCatalog.global.filter { selectedAgents.contains($0.id) }
+    let repositorySkills = skills.compactMap { skill -> (source: String, skill: InstalledSkill)? in
+      guard let source = skill.linkRepository else { return nil }
       return (source, skill)
     }
-    guard !linkableSkills.isEmpty else { return }
 
-    let operations = Dictionary(grouping: linkableSkills) { $0.source }
+    let operations = Dictionary(grouping: repositorySkills) { $0.source }
       .map { source, entries in
         (
           source: source,
@@ -420,7 +421,7 @@ public final class AppModel {
         )
       }
       .sorted { $0.source.localizedCaseInsensitiveCompare($1.source) == .orderedAscending }
-    let names = linkableSkills.map(\.skill.name).sorted()
+    let names = skills.map(\.name).sorted()
     let displayName =
       names.count <= 3
       ? names.joined(separator: ", ")
@@ -430,7 +431,7 @@ public final class AppModel {
         for: SkillsClient.linkArguments(
           source: $0.source, skillNames: $0.skillNames, agents: agents),
         package: package)
-    }
+    } + localSkills.map { "\($0.path) → \(agents.joined(separator: ", "))" }
 
     await performInstall(
       action: .link,
@@ -443,6 +444,20 @@ public final class AppModel {
       var outcomes: [AddOutcome] = []
       var logs: [String] = []
       var failed = false
+      for skill in localSkills {
+        for target in targets {
+          do {
+            let link = try await Task.detached {
+              try SkillsClient.linkLocal(skill, to: target)
+            }.value
+            logs.append("\(link.path) → \(skill.path)")
+            outcomes.append(AddOutcome(status: "installed", name: skill.name, error: nil, reason: nil))
+          } catch {
+            failed = true
+            logs.append("\(target.skillDirectory) · \(skill.path): \(error.localizedDescription)")
+          }
+        }
+      }
       for operation in operations {
         let response = try await self.client.link(
           runtime: runtime,
@@ -454,6 +469,9 @@ public final class AppModel {
         outcomes += response.outcomes
         if !response.result.log.isEmpty { logs.append(response.result.log) }
         if response.result.status != 0 { failed = true }
+      }
+      if failed && !localSkills.isEmpty {
+        await self.reloadInstalled(reportFailure: false)
       }
       return (
         outcomes,

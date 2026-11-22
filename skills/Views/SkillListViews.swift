@@ -196,8 +196,7 @@ struct InstalledListView: View {
             .contentShape(Rectangle())
           }
           .buttonStyle(.plain)
-          .disabled(
-            model.isBusy || !model.installedSkills.contains { $0.installSource != nil })
+          .disabled(model.isBusy || model.installedSkills.isEmpty)
         }
       }
       .padding(.horizontal, 12)

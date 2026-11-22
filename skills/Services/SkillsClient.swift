@@ -129,6 +129,27 @@ struct SkillsClient: Sendable {
     addArguments(source: source, skills: skillNames, agents: agents, copy: copy)
   }
 
+  static func linkLocal(_ skill: InstalledSkill, to agent: AgentDefinition) throws -> URL {
+    let files = FileManager.default
+    guard skill.path.hasPrefix("/") else { throw CocoaError(.fileReadInvalidFileName) }
+    let installed = URL(fileURLWithPath: skill.path, isDirectory: true).standardizedFileURL
+    let source = installed.resolvingSymlinksInPath()
+    let manifest = source.appendingPathComponent("SKILL.md")
+    guard try manifest.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true else {
+      throw CocoaError(.fileReadUnknown, userInfo: [NSFilePathErrorKey: manifest.path])
+    }
+
+    let directory = URL(
+      fileURLWithPath: (agent.skillDirectory as NSString).expandingTildeInPath, isDirectory: true)
+    let link = directory.appendingPathComponent(installed.lastPathComponent, isDirectory: true)
+    if link.resolvingSymlinksInPath().path == source.path { return link }
+
+    try files.createDirectory(at: directory, withIntermediateDirectories: true)
+    // Creating without removing first also protects existing directories and dangling links.
+    try files.createSymbolicLink(atPath: link.path, withDestinationPath: source.path)
+    return link
+  }
+
   static func linkArguments(source: String, skillNames: [String], agents: [String]) -> [String] {
     addArguments(source: source, skills: skillNames, agents: agents, copy: false)
   }

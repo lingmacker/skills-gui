@@ -6,7 +6,7 @@
   <img src="icon.png" width="192" alt="Skills 应用图标">
 </p>
 
-为 Vercel [`skills`](https://github.com/vercel-labs/skills) 命令提供原生 macOS 图形化工具，用于管理全局安装的 agent skills。所有行为都调用官方 skills CLI 来实现。
+为 Vercel [`skills`](https://github.com/vercel-labs/skills) 命令提供原生 macOS 图形化工具，用于管理全局安装的 agent skills。
 
 ## 功能
 
@@ -74,7 +74,7 @@ ad-hoc 签名可验证归档的代码结构，但不会向 Gatekeeper 标识已�
 
 ## 安全和范围
 
-Skills 只管理全局 skills。已安装列表和所有变更均通过所选 `skills` CLI 处理，以保留 CLI 对 skill 来源、安装范围和 agent 关联关系的完整判断。安装目标必须显式选择，最后一次选择会保存在本机。
+Skills 只管理全局 skills。本地 skill 支持单个或批量链接：在目标 agent 目录创建指向已安装目录的软链接，不复制、不覆盖同名内容。已安装列表和其它变更仍由所选 `skills` CLI 处理。安装目标必须显式选择，最后一次选择会保存在本机。
 
 ## 许可证
 

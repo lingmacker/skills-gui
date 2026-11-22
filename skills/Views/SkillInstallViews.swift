@@ -275,7 +275,7 @@ struct LinkSkillView: View {
                         VStack(alignment: .leading, spacing: 1) {
                           Text(skill.name)
                             .lineLimit(1)
-                          Text(skill.installSource ?? "")
+                          Text(skill.linkRepository ?? skill.path)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
@@ -342,7 +342,7 @@ struct LinkSkillView: View {
     guard !query.isEmpty else { return skills }
     return skills.filter {
       $0.name.localizedCaseInsensitiveContains(query)
-        || $0.installSource?.localizedCaseInsensitiveContains(query) == true
+        || ($0.linkRepository ?? $0.path).localizedCaseInsensitiveContains(query)
     }
   }
 

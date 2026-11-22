@@ -63,13 +63,13 @@
 "link.current_agents" = "Currently linked";
 "link.target_agents" = "Additional agents";
 "link.open.help" = "Link this skill to other agents";
-"link.source_unavailable" = "This skill has no recorded source available for relinking";
+"skill.progress.link.operations" = "Link operations";
 "link.batch.action" = "Batch Link";
 "link.batch.title" = "Link Multiple Skills";
 "link.batch.description" = "Choose skills and link them to the same target agents.";
 "link.batch.open.help" = "Link multiple installed skills to other agents";
 "link.skills" = "Target skills";
-"link.skill.search" = "Filter by skill name or repository";
+"link.skill.search" = "Filter by skill name, repository, or path";
 "link.skills.empty" = "No matching skills";
 "install.agents" = "Target agents";
 "install.agents.selected" = "Selected";
@@ -103,7 +103,7 @@
 "skill.progress.update.succeeded" = "Update completed.";
 "skill.progress.update.failed" = "Update failed.";
 "skill.progress.link.title" = "Linking Skill";
-"skill.progress.link.running" = "Creating links with the skills CLI…";
+"skill.progress.link.running" = "Creating agent links…";
 "skill.progress.link.succeeded" = "Agent links created.";
 "skill.progress.link.failed" = "Agent linking failed.";
 "skill.progress.remove.title" = "Removing Skill";
@@ -134,5 +134,5 @@
 "error.install_failed" = "The skill was not installed for every selected agent. Expand Details to review the CLI output.";
 "error.install_skipped" = "The CLI skipped this skill. Expand Details to review its reason.";
 "error.update_failed" = "The update did not complete successfully. Expand Details to review the CLI output.";
-"error.link_failed" = "The skill could not be linked to every selected agent. Expand Details to review the CLI output.";
+"error.link_failed" = "The skill could not be linked to every selected agent. Expand Details to see why.";
 "error.remove_failed" = "The skill could not be fully removed. Expand Details to review the CLI output.";
